@@ -27,7 +27,8 @@ public class DeviceDBHandler extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-//        onUpgrade(db,1,2);
+//        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+//        db.close();
         String query = "CREATE TABLE " + TABLE_NAME + " ( " +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_DEVICENAME + " TEXT, "+
@@ -61,6 +62,21 @@ public class DeviceDBHandler extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM " + TABLE_NAME + "WHERE" + COLUMN_ID + "=\"" + Integer.toString(id) + "\";");
     }
 
+    public void deletetable(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+    }
+
+    public void createtable(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "CREATE TABLE " + TABLE_NAME + " ( " +
+                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_DEVICENAME + " TEXT, "+
+                COLUMN_DEVICEADDRESS + " TEXT, "+
+                COLUMN_DEVICERSSI +" INTEGER " +
+                ");";
+        db.execSQL(query);
+    }
     //get specific row from database
     public String [] deviceAt(int id){
         SQLiteDatabase db = this.getReadableDatabase();

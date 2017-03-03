@@ -198,6 +198,8 @@ public class MainActivity extends AppCompatActivity {
                 ScanDevices.DEVICE_NAMES);
         //create database to store devices
         dbHandler = new DeviceDBHandler(this);
+        dbHandler.deletetable();
+        dbHandler.createtable();
 //        Toast.makeText(this,names,Toast.LENGTH_LONG).show();
 //        dbHandler.onUpgrade(<database name .db>); //implement this to update the database when the user starts a new scanning session
         String [] splitNames = names.split("\r?\n");
