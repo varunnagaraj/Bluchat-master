@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                 case MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
                         case ChatService.STATE_CONNECTED:
-                            setStatus(R.string.title_connected_to +
+                            setStatus(
                                     connectedDeviceName);
 //                            chatArrayAdapter.clear();
                             break;
@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-//                        sendMessage(names);
+                        sendMessage(names);
                         showToast();
                     }
                 }
@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showToast(){
-        String dbString [] = dbHandler.deviceAt(2);
+        String dbString [] = dbHandler.deviceAt(1);
         Toast.makeText(this,"Device Name - "+ dbString[0]+"\n" +"Device Address - "+ dbString[1]+"\n"+"Device RSSI - "+dbString[2],Toast.LENGTH_LONG).show();
     }
     private final void setStatus(int resId) {
