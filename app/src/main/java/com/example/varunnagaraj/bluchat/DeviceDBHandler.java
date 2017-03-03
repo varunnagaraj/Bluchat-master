@@ -3,6 +3,7 @@ package com.example.varunnagaraj.bluchat;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -86,6 +87,13 @@ public class DeviceDBHandler extends SQLiteOpenHelper {
         String deviceIs [] = {cursor.getString(0), cursor.getString(1), cursor.getString(2)};
         cursor.close();
         return deviceIs;
+    }
+
+    public int getCount(){
+        SQLiteDatabase db = this.getReadableDatabase();
+//        if()
+        int count = (int) DatabaseUtils.queryNumEntries(db,TABLE_NAME);
+        return count;
     }
 
     //Printing database

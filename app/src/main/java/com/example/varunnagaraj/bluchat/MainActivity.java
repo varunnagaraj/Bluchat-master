@@ -82,8 +82,13 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case MESSAGE_READ:
                     byte[] readBuf = (byte[]) msg.obj;
-
                     String readMessage = new String(readBuf, 0, msg.arg1);
+                    if(readMessage.startsWith("TID"))
+                    {
+                        readMessage = readMessage.substring(3);
+                        addToTable(readMessage);
+                    }
+                    else
                     chatArrayAdapter.add(connectedDeviceName + ":  " + readMessage);
                     break;
                 case MESSAGE_DEVICE_NAME:
@@ -102,6 +107,23 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
     });
+
+         private void addToTable(String names)
+         {
+//             dbHandler = new DeviceDBHandler(this);
+//             dbHandler.deletetable();
+//             dbHandler.createtable();
+             String [] splitNames = names.split("\r?\n");
+             int size = splitNames.length;
+             for(int i=0;i<size;i=i+3) {
+                 String a = splitNames[i];
+                 String b = splitNames[i + 1];
+                 String c = splitNames[i + 2];
+                 devices = new Devices(a, b, c);
+                 dbHandler.addDevice(devices);
+                 showToast();
+             }
+         }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,12 +166,15 @@ public class MainActivity extends AppCompatActivity {
         });
         ensureDiscoverable();
 
+        dbHandler = new DeviceDBHandler(this);
+
         sendListButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        names="TID"+names;
                         sendMessage(names);
-                        showToast();
+//                        showToast();
                     }
                 }
         );
@@ -177,7 +202,17 @@ public class MainActivity extends AppCompatActivity {
         actionBar.setSubtitle(subTitle);
     }
     private void startScan(View view){
+        int count = dbHandler.getCount();
+        String recNames ="";
+        for(int i=1;i<count;i++){
+            String dbNames [] = dbHandler.deviceAt(i);
+            recNames+= dbNames[0]+"\n"+dbNames[1]+"\n"+dbNames[2]+"\n";
+
+//            showToast();
+
+        }
         Intent serverIntent = new Intent(this, ScanDevices.class);
+        serverIntent.putExtra("serverIntent",recNames);
         startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_INSECURE);
     }
 
@@ -196,21 +231,21 @@ public class MainActivity extends AppCompatActivity {
                 ScanDevices.DEVICE_ADDRESS);
         names = data.getExtras().getString(
                 ScanDevices.DEVICE_NAMES);
-        //create database to store devices
-        dbHandler = new DeviceDBHandler(this);
-        dbHandler.deletetable();
-        dbHandler.createtable();
-//        Toast.makeText(this,names,Toast.LENGTH_LONG).show();
-//        dbHandler.onUpgrade(<database name .db>); //implement this to update the database when the user starts a new scanning session
-        String [] splitNames = names.split("\r?\n");
-        int size = splitNames.length;
-        for(int i=0;i<size;i=i+3) {
-            String a= splitNames[i];
-            String b= splitNames[i+1];
-            String c= splitNames[i+2];
-            devices = new Devices(a,b,c);
-            dbHandler.addDevice(devices);
-        }
+//        //create database to store devices
+//        dbHandler = new DeviceDBHandler(this);
+//        dbHandler.deletetable();
+//        dbHandler.createtable();
+////        Toast.makeText(this,names,Toast.LENGTH_LONG).show();
+////        dbHandler.onUpgrade(<database name .db>); //implement this to update the database when the user starts a new scanning session
+//        String [] splitNames = names.split("\r?\n");
+//        int size = splitNames.length;
+//        for(int i=0;i<size;i=i+3) {
+//            String a= splitNames[i];
+//            String b= splitNames[i+1];
+//            String c= splitNames[i+2];
+//            devices = new Devices(a,b,c);
+//            dbHandler.addDevice(devices);
+//        }
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
         chatService.connect(device, secure);
     }

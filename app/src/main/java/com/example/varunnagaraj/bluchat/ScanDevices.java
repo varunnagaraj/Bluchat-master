@@ -48,6 +48,8 @@ public class ScanDevices  extends Activity{
 //        }
 //    };
 
+    private String dbNames2;
+
     public static String DEVICE_ADDRESS = "deviceAddress";
     public static String DEVICE_NAMES = "devicename";
     @Override
@@ -89,7 +91,9 @@ public class ScanDevices  extends Activity{
         pairedDeviceList.setOnItemClickListener(mDeviceClickListener);
         newDeviceList.setOnItemClickListener(mDeviceClickListener);
 
-
+        Bundle dbNames1 = getIntent().getExtras();
+        dbNames2 = dbNames1.getString("serverIntent");
+        Toast.makeText(this,dbNames2,Toast.LENGTH_LONG).show();
 
     }
 
