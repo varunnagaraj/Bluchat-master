@@ -188,29 +188,34 @@ public class ScanDevices  extends Activity{
         registerReceiver(discoveryFinishReceiver, filter);
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter
-                .getBondedDevices();
+//        Set<BluetoothDevice> pairedDevices = bluetoothAdapter
+//                .getBondedDevices();
 
-        // If there are paired devices, add each one to the ArrayAdapter
-        if (pairedDevices.size() > 0) {
-            pairedDeviceTitle.setVisibility(View.VISIBLE);
-            for (BluetoothDevice device : pairedDevices) {
-                pairedDevicesArrayAdapter.add(device.getName() + "\n"
-                        + device.getAddress());
-            }
-        } else {
-            String noDevices = getResources().getText(R.string.none_paired)
-                    .toString();
-            pairedDevicesArrayAdapter.add(noDevices);
-        }
-//        String [] dbDevices = dbNames2.split("\r?\n");
-//        int count1 = dbDevices.length;
-//        for(int i=0;i<count1;i=i+3){
-//            String a = dbDevices[i];
-//            String b = dbDevices[i + 1];
-//            String c = dbDevices[i + 2];
-//            pairedDevicesArrayAdapter.add(a+" - " + b+"\n"+c);
+//        // If there are paired devices, add each one to the ArrayAdapter
+//        if (pairedDevices.size() > 0) {
+//            pairedDeviceTitle.setVisibility(View.VISIBLE);
+//            for (BluetoothDevice device : pairedDevices) {
+//                pairedDevicesArrayAdapter.add(device.getName() + "\n"
+//                        + device.getAddress());
+//            }
+//        } else {
+//            String noDevices = getResources().getText(R.string.none_paired)
+//                    .toString();
+//            pairedDevicesArrayAdapter.add(noDevices);
 //        }
+        if(dbNames2.isEmpty()) {
+            pairedDevicesArrayAdapter.add("No Devices in Database");
+        }
+        else {
+            String[] dbDevices = dbNames2.split("\r?\n");
+            int count1 = dbDevices.length;
+            for (int i = 0; i < count1; i = i + 3) {
+                String a = dbDevices[i];
+                String b = dbDevices[i + 1];
+                String c = dbDevices[i + 2];
+                pairedDevicesArrayAdapter.add(a + "\n" + b + "\n" + c);
+            }
+        }
     }
 
     private final BroadcastReceiver discoveryFinishReceiver = new BroadcastReceiver() {

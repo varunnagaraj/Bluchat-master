@@ -58,9 +58,9 @@ public class DeviceDBHandler extends SQLiteOpenHelper {
     }
 
     //Delete a product from the database
-    public void deleteDevice(int id){
+    public void deleteDevice(String address){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_NAME + "WHERE" + COLUMN_ID + "=\"" + Integer.toString(id) + "\";");
+        db.execSQL("DELETE FROM " + TABLE_NAME + " WHERE " + COLUMN_DEVICEADDRESS + " = \"" + address + "\";");
     }
 
     public void deletetable(){
@@ -116,5 +116,17 @@ public class DeviceDBHandler extends SQLiteOpenHelper {
 //        db.close();
 //        return dbString;
 //    }
+
+    public int isExits(String address){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " +TABLE_NAME+" WHERE "+COLUMN_DEVICEADDRESS+" = \""+address+"\"";
+        Cursor cursor = db.rawQuery(query,null);
+        if(cursor.getCount()!=0){
+            cursor.moveToFirst();
+            return Integer.parseInt(cursor.getString(3));
+        }
+        return 1000;
+    }
+
 
 }

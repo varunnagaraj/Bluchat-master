@@ -120,8 +120,17 @@ public class MainActivity extends AppCompatActivity {
                  String b = splitNames[i + 1];
                  String c = splitNames[i + 2];
                  devices = new Devices(a, b, c);
-                 dbHandler.addDevice(devices);
-                 showToast();
+                 //check if device already exists in table
+                 int RSSI = dbHandler.isExits(b);
+                 if(RSSI<Integer.parseInt(c)){
+                     dbHandler.deleteDevice(b);
+                     dbHandler.addDevice(devices);
+                 }
+                 else if (RSSI == 1000){
+                     dbHandler.addDevice(devices);
+                 }
+
+//                 showToast();
              }
          }
 
