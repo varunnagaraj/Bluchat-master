@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private Devices devices;
     private Devices devices1;
 
-    private String names;
+    private String names = "";
 
     private String connectedDeviceName = null;
     private ArrayAdapter<String> chatArrayAdapter;
@@ -204,8 +204,8 @@ public class MainActivity extends AppCompatActivity {
     private void startScan(View view){
         int count = dbHandler.getCount();
         String recNames ="";
-        for(int i=1;i<count;i++){
-            String dbNames [] = dbHandler.deviceAt(i);
+        for(int i=0;i<count;i++){
+            String dbNames [] = dbHandler.deviceAt(i+1);
             recNames+= dbNames[0]+"\n"+dbNames[1]+"\n"+dbNames[2]+"\n";
 
 //            showToast();

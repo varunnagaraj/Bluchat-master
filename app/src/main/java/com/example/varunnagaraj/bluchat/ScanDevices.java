@@ -86,7 +86,7 @@ public class ScanDevices  extends Activity{
                 }
         );
 
-        initializeValues();
+
 
         pairedDeviceList.setOnItemClickListener(mDeviceClickListener);
         newDeviceList.setOnItemClickListener(mDeviceClickListener);
@@ -95,6 +95,7 @@ public class ScanDevices  extends Activity{
         dbNames2 = dbNames1.getString("serverIntent");
         Toast.makeText(this,dbNames2,Toast.LENGTH_LONG).show();
 
+        initializeValues();
     }
 
 
@@ -202,6 +203,14 @@ public class ScanDevices  extends Activity{
                     .toString();
             pairedDevicesArrayAdapter.add(noDevices);
         }
+//        String [] dbDevices = dbNames2.split("\r?\n");
+//        int count1 = dbDevices.length;
+//        for(int i=0;i<count1;i=i+3){
+//            String a = dbDevices[i];
+//            String b = dbDevices[i + 1];
+//            String c = dbDevices[i + 2];
+//            pairedDevicesArrayAdapter.add(a+" - " + b+"\n"+c);
+//        }
     }
 
     private final BroadcastReceiver discoveryFinishReceiver = new BroadcastReceiver() {
