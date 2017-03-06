@@ -147,6 +147,7 @@ public class ChatService {
         Message msg = handler.obtainMessage(MainActivity.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
         bundle.putString(MainActivity.DEVICE_NAME, device.getName());
+        bundle.putString(MainActivity.DEVICE_ADDRESS, device.getAddress());
         msg.setData(bundle);
         handler.sendMessage(msg);
 

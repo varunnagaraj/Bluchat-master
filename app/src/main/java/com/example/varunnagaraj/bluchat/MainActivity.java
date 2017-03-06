@@ -20,6 +20,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import static java.lang.Math.min;
+
 public class MainActivity extends AppCompatActivity {
 
     private ListView chatWindow;
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int MESSAGE_TOAST = 5;
 
     public static final String DEVICE_NAME = "device_name";
+    public static final String DEVICE_ADDRESS = "device_address";
     public static final String TOAST = "toast";
 
     private static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
@@ -46,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private String names = "";
 
     private String connectedDeviceName = null;
+    private String connectedDeviceAddress = null;
     private ArrayAdapter<String> chatArrayAdapter;
 
     private StringBuffer outStringBuffer;
@@ -94,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
                 case MESSAGE_DEVICE_NAME:
 
                     connectedDeviceName = msg.getData().getString(DEVICE_NAME);
+                    connectedDeviceAddress = msg.getData().getString(DEVICE_ADDRESS);
                     Toast.makeText(getApplicationContext(),
                             "Connected to " + connectedDeviceName,
                             Toast.LENGTH_SHORT).show();
@@ -121,13 +126,21 @@ public class MainActivity extends AppCompatActivity {
                  String c = splitNames[i + 2];
                  devices = new Devices(a, b, c);
                  //check if device already exists in table
-                 int RSSI = dbHandler.isExits(b);
-                 if(RSSI<Integer.parseInt(c)){
-                     dbHandler.deleteDevice(b);
-                     dbHandler.addDevice(devices);
+                 int RSSI12 = dbHandler.isExits2(b);
+
+
+                 if(RSSI12!= 1000){
+                     String addressInter = dbHandler.addressInter(b);
+                     int RSSI11 = dbHandler.rssi1(addressInter); //rssi between inter for path1 and us
+                     int RSSI21 = dbHandler.rssi1(connectedDeviceAddress);
+                     int RSSI22 = Integer.parseInt(c);
+                     if(min(RSSI11,RSSI12) < min(RSSI21,RSSI22)) { //update the db only if min(path1) < min(path2)
+                         dbHandler.updateRow2(devices, b, connectedDeviceName, connectedDeviceAddress);
+                     }
+//                     dbHandler.addDevice2(devices, connectedDeviceName, connectedDeviceAddress);
                  }
-                 else if (RSSI == 1000){
-                     dbHandler.addDevice(devices);
+                 else if (RSSI12 == 1000){
+                     dbHandler.addDevice2(devices, connectedDeviceName, connectedDeviceAddress);
                  }
 
 //                 showToast();
@@ -198,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showToast(){
-        String dbString [] = dbHandler.deviceAt(1);
+        String dbString [] = dbHandler.deviceAt2(1);
         Toast.makeText(this,"Device Name - "+ dbString[0]+"\n" +"Device Address - "+ dbString[1]+"\n"+"Device RSSI - "+dbString[2],Toast.LENGTH_LONG).show();
     }
     private final void setStatus(int resId) {
@@ -211,15 +224,18 @@ public class MainActivity extends AppCompatActivity {
         actionBar.setSubtitle(subTitle);
     }
     private void startScan(View view){
-        int count = dbHandler.getCount();
+        int count = dbHandler.getCount2();
+//        String counter = Integer.toString(count);
+//        Toast.makeText(this,counter,Toast.LENGTH_LONG).show();
         String recNames ="";
+        String [] dbNames = {"1","2","3"};
         for(int i=0;i<count;i++){
-            String dbNames [] = dbHandler.deviceAt(i+1);
-            recNames+= dbNames[0]+"\n"+dbNames[1]+"\n"+dbNames[2]+"\n";
-
+            dbNames = dbHandler.deviceAt2(i+1);
+            recNames+= dbNames[0]+"\n"+dbNames[1]+"\n"+dbNames[2]+"\n"+dbNames[3]+"\n"+dbNames[4]+"\n";
 //            showToast();
 
         }
+//        Toast.makeText(this,dbNames[1],Toast.LENGTH_LONG).show();
         Intent serverIntent = new Intent(this, ScanDevices.class);
         serverIntent.putExtra("serverIntent",recNames);
         startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_INSECURE);
@@ -232,6 +248,11 @@ public class MainActivity extends AppCompatActivity {
                     connectDevice(data, false);
                 }
                 break;
+            //get the details of scanned devices even if the user didn't click on any user to connect
+//            default:
+
+
+
         }
     }
 
@@ -240,10 +261,10 @@ public class MainActivity extends AppCompatActivity {
                 ScanDevices.DEVICE_ADDRESS);
         names = data.getExtras().getString(
                 ScanDevices.DEVICE_NAMES);
-//        //create database to store devices
+        //create database to store devices
 //        dbHandler = new DeviceDBHandler(this);
-//        dbHandler.deletetable();
-//        dbHandler.createtable();
+//        dbHandler.deletetable1();
+//        dbHandler.createtable1();
 ////        Toast.makeText(this,names,Toast.LENGTH_LONG).show();
 ////        dbHandler.onUpgrade(<database name .db>); //implement this to update the database when the user starts a new scanning session
 //        String [] splitNames = names.split("\r?\n");
@@ -253,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
 //            String b= splitNames[i+1];
 //            String c= splitNames[i+2];
 //            devices = new Devices(a,b,c);
-//            dbHandler.addDevice(devices);
+//            dbHandler.addDevice1(devices);
 //        }
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
         chatService.connect(device, secure);

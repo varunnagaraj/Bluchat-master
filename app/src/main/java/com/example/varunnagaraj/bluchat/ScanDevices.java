@@ -39,7 +39,7 @@ public class ScanDevices  extends Activity{
     private TextView progressText;
     private ProgressBar spinner;
 
-//    public DeviceDBHandler dbHandler;
+    public DeviceDBHandler dbHandler;
 
 //    Handler handler = new Handler(){
 //        @Override
@@ -56,7 +56,7 @@ public class ScanDevices  extends Activity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.scan_devices);
-//        dbHandler = new DeviceDBHandler(this,null,null,1);
+        dbHandler = new DeviceDBHandler(this);
 
         // Quick permission check
         int permissionCheck = this.checkSelfPermission("Manifest.permission.ACCESS_FINE_LOCATION");
@@ -78,6 +78,8 @@ public class ScanDevices  extends Activity{
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        dbHandler.deletetable1();
+                        dbHandler.createtable1();
 //                        newDeviceList.clearChoices();
                         startDiscovery();
                         scanDevicesButton.setVisibility(View.GONE);
@@ -93,7 +95,7 @@ public class ScanDevices  extends Activity{
 
         Bundle dbNames1 = getIntent().getExtras();
         dbNames2 = dbNames1.getString("serverIntent");
-        Toast.makeText(this,dbNames2,Toast.LENGTH_LONG).show();
+//        Toast.makeText(this,dbNames2,Toast.LENGTH_LONG).show();
 
         initializeValues();
     }
@@ -209,11 +211,13 @@ public class ScanDevices  extends Activity{
         else {
             String[] dbDevices = dbNames2.split("\r?\n");
             int count1 = dbDevices.length;
-            for (int i = 0; i < count1; i = i + 3) {
+            for (int i = 0; i < count1; i = i + 5) {
                 String a = dbDevices[i];
                 String b = dbDevices[i + 1];
                 String c = dbDevices[i + 2];
-                pairedDevicesArrayAdapter.add(a + "\n" + b + "\n" + c);
+                String d = dbDevices[i + 3];
+                String e= dbDevices[i + 4];
+                pairedDevicesArrayAdapter.add(a + "\n" + b + "\n" + c+"\n"+d+"\n"+e);
             }
         }
     }
@@ -228,8 +232,12 @@ public class ScanDevices  extends Activity{
                         .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 int  rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI,Short.MIN_VALUE);
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    newDevicesArrayAdapter.add(device.getName() + "\n"
-                            + device.getAddress()+"\n"+Integer.toString(rssi) );
+                    if(device.getName()!= null) {
+                        newDevicesArrayAdapter.add(device.getName() + "\n"
+                                + device.getAddress() + "\n" + Integer.toString(rssi));
+                        Devices scanDevices = new Devices(device.getName(),device.getAddress(),Integer.toString(rssi));
+                        dbHandler.addDevice1(scanDevices);
+                    }
                 }
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED
                     .equals(action)) {
