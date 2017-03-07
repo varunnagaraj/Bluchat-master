@@ -29,11 +29,11 @@ import java.util.StringTokenizer;
 
 public class ScanDevices  extends Activity{
 
-    private TextView pairedDeviceTitle, newDeviceTitle;
-    private ListView pairedDeviceList, newDeviceList;
+    private TextView secondHopDeviceTitle, newDeviceTitle;
+    private ListView secondHopDeviceList, newDeviceList;
     private Button scanDevicesButton;
     private BluetoothAdapter bluetoothAdapter;
-    private ArrayAdapter<String> pairedDevicesArrayAdapter;
+    private ArrayAdapter<String> secondHopDevicesArrayAdapter;
     private ArrayAdapter<String> newDevicesArrayAdapter;
 
     private TextView progressText;
@@ -51,6 +51,7 @@ public class ScanDevices  extends Activity{
     private String dbNames2;
 
     public static String DEVICE_ADDRESS = "deviceAddress";
+    public static String DEVICE_2_ADDRESS = "device2Address";
     public static String DEVICE_NAMES = "devicename";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,10 +67,10 @@ public class ScanDevices  extends Activity{
             this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1001); //Any number
         }
 //        startDiscovery();
-        pairedDeviceTitle = (TextView) findViewById(R.id.pairedDeviceTitle);
+        secondHopDeviceTitle = (TextView) findViewById(R.id.secondHopDeviceTitle);
         newDeviceTitle = (TextView) findViewById(R.id.newDeviceTitle);
 
-        pairedDeviceList = (ListView) findViewById(R.id.pairedDeviceList);
+        secondHopDeviceList = (ListView) findViewById(R.id.secondHopDeviceList);
         newDeviceList= (ListView) findViewById(R.id.newDeviceList);
 
         scanDevicesButton = (Button) findViewById(R.id.scanDevicesButton);
@@ -90,7 +91,7 @@ public class ScanDevices  extends Activity{
 
 
 
-        pairedDeviceList.setOnItemClickListener(mDeviceClickListener);
+        secondHopDeviceList.setOnItemClickListener(mDeviceClickListener2);
         newDeviceList.setOnItemClickListener(mDeviceClickListener);
 
         Bundle dbNames1 = getIntent().getExtras();
@@ -150,35 +151,59 @@ public class ScanDevices  extends Activity{
     private AdapterView.OnItemClickListener mDeviceClickListener = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
             bluetoothAdapter.cancelDiscovery();
-
+            MainActivity.connectFlag = 1;
             String info = ((TextView) v).getText().toString();
             String devicedata [] = info.split("\r?\n");
 //            String address = info.substring(info.length() - 17);
             String address = devicedata[1];
-            int count = newDevicesArrayAdapter.getCount();
-            String devicename = "";
-            for(int i=0;i<count;i++){
-                devicename += newDevicesArrayAdapter.getItem(i) + "\n";
-//                Devices devices = new Devices(devicename," "," ");
-//            dbHandler.addDevice(devices);
-            }
+//            int count = newDevicesArrayAdapter.getCount();
+//            String devicename = "";
+//            for(int i=0;i<count;i++){
+//                devicename += newDevicesArrayAdapter.getItem(i) + "\n";
+////                Devices devices = new Devices(devicename," "," ");
+////            dbHandler.addDevice(devices);
+//            }
 
 
             Intent intent = new Intent();
             intent.putExtra(DEVICE_ADDRESS, address);
-            intent.putExtra(DEVICE_NAMES, devicename);
+            intent.putExtra(DEVICE_2_ADDRESS, "");
+//            intent.putExtra(DEVICE_NAMES, devicename);
 
             setResult(Activity.RESULT_OK, intent);
             finish();
         }
     };
+
+    private AdapterView.OnItemClickListener mDeviceClickListener2 = new AdapterView.OnItemClickListener() {
+        public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
+            bluetoothAdapter.cancelDiscovery();
+            MainActivity.connectFlag = 2;
+            String info = ((TextView) v).getText().toString();
+            String devicedata [] = info.split("\r?\n");
+//            String address = info.substring(info.length() - 17);
+            String address = devicedata[3];
+            String addressFinal = devicedata[1];
+            int count = newDevicesArrayAdapter.getCount();
+
+
+            Intent intent = new Intent();
+            intent.putExtra(DEVICE_ADDRESS, address);
+            intent.putExtra(DEVICE_2_ADDRESS, addressFinal);
+//            intent.putExtra(DEVICE_NAMES, devicename);
+
+            setResult(Activity.RESULT_OK, intent);
+            finish();
+        }
+    };
+
     private void initializeValues() {
-        pairedDevicesArrayAdapter = new ArrayAdapter<String>(this,
+        secondHopDevicesArrayAdapter = new ArrayAdapter<String>(this,
                 R.layout.device_name);
         newDevicesArrayAdapter = new ArrayAdapter<String>(this,
                 R.layout.device_name);
 
-        pairedDeviceList.setAdapter(pairedDevicesArrayAdapter);
+        secondHopDeviceList.setAdapter(secondHopDevicesArrayAdapter);
         newDeviceList.setAdapter(newDevicesArrayAdapter);
 
         // Register for broadcasts when a device is discovered
@@ -206,7 +231,7 @@ public class ScanDevices  extends Activity{
 //            pairedDevicesArrayAdapter.add(noDevices);
 //        }
         if(dbNames2.isEmpty()) {
-            pairedDevicesArrayAdapter.add("No Devices in Database");
+            secondHopDevicesArrayAdapter.add("No Devices in Database");
         }
         else {
             String[] dbDevices = dbNames2.split("\r?\n");
@@ -217,7 +242,7 @@ public class ScanDevices  extends Activity{
                 String c = dbDevices[i + 2];
                 String d = dbDevices[i + 3];
                 String e= dbDevices[i + 4];
-                pairedDevicesArrayAdapter.add(a + "\n" + b + "\n" + c+"\n"+d+"\n"+e);
+                secondHopDevicesArrayAdapter.add(a + "\n" + b + "\n" + c+"\n"+d+"\n"+e);
             }
         }
     }

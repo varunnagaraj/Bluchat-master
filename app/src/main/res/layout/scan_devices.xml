@@ -30,7 +30,7 @@
 
         </LinearLayout>
     <TextView
-        android:id="@+id/pairedDeviceTitle"
+        android:id="@+id/secondHopDeviceTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="5dp"
@@ -39,7 +39,7 @@
         android:textSize="20sp" />
 
     <ListView
-        android:id="@+id/pairedDeviceList"
+        android:id="@+id/secondHopDeviceList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1" />

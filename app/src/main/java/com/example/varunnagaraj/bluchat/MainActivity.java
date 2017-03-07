@@ -43,10 +43,13 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
     private static final int REQUEST_ENABLE_BT = 3;
 
+    public static int connectFlag;
+    public static String addressFinal;
     private Devices devices;
     private Devices devices1;
 
     private String names = "";
+    public String readAddress;
 
     private String connectedDeviceName = null;
     private String connectedDeviceAddress = null;
@@ -80,20 +83,62 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case MESSAGE_WRITE:
                     byte[] writeBuf = (byte[]) msg.obj;
-
                     String writeMessage = new String(writeBuf);
-                    chatArrayAdapter.add("Me:  " + writeMessage);
+                    if(writeMessage.startsWith("TID")) {
+                        writeMessage = writeMessage.substring(3);
+                        chatArrayAdapter.add("Me:\n" + writeMessage);
+                    }
+                    else if(writeMessage.startsWith("NFM")){
+                        writeMessage = writeMessage.substring(20);
+                        chatArrayAdapter.add("Me:\n" + writeMessage);
+                    }
+                    else if(writeMessage.startsWith("NF2"));
+//                        writeMessage = "";
+                    else
+                        chatArrayAdapter.add("Me:\n" + writeMessage);
                     break;
                 case MESSAGE_READ:
                     byte[] readBuf = (byte[]) msg.obj;
                     String readMessage = new String(readBuf, 0, msg.arg1);
-                    if(readMessage.startsWith("TID"))
+                    if(readMessage.startsWith("TID") && readMessage.length()>3)
                     {
                         readMessage = readMessage.substring(3);
                         addToTable(readMessage);
                     }
+                    else if(readMessage.startsWith("NFM") && readMessage.length()>3)
+                    {
+                        readAddress = readMessage.substring(3,20);
+                        readMessage = readMessage.substring(20);
+                        String fromName = connectedDeviceName;
+                        String fromAddress = connectedDeviceAddress;
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+                        }
+                        BluetoothDevice device = bluetoothAdapter.getRemoteDevice(readAddress);
+                        chatService.connect(device, false);
+                        try {
+                            Thread.sleep(1800);
+                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+                        }
+                        sendMessage("NF2"+fromName+"\n"+fromAddress+readMessage);
+                        chatService.stop();
+                        chatService.start();
+
+//                        chatArrayAdapter.add(connectedDeviceName+":\n"+readAddress+readMessage);
+                    }
+                    else if(readMessage.startsWith("NF2") && readMessage.length()>3)
+                    {
+                        String [] data = readMessage.split("\n");
+                        String name = data[0].substring(3);
+                        readMessage = data[1].substring(17);
+                        chatArrayAdapter.add(name+":\n"+readMessage);
+
+                    }
                     else
-                    chatArrayAdapter.add(connectedDeviceName + ":  " + readMessage);
+                    chatArrayAdapter.add(connectedDeviceName + ":\n" + readMessage);
                     break;
                 case MESSAGE_DEVICE_NAME:
 
@@ -182,8 +227,21 @@ public class MainActivity extends AppCompatActivity {
 
         sendButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String message = chatText.getText().toString();
-                sendMessage(message);
+                if(connectFlag == 1) {
+                    String message = chatText.getText().toString();
+                    sendMessage(message);
+                }
+                if(connectFlag == 2) {
+                    String message = chatText.getText().toString();
+                    sendMessage("NFM"+addressFinal+message);
+//                    try {
+//                        Thread.sleep(1000);
+//                    } catch (InterruptedException e) {
+////                            e.printStackTrace();
+//                    }
+                    chatService.stop();
+                    chatService.start();
+                }
             }
         });
         ensureDiscoverable();
@@ -194,8 +252,15 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        names="TID"+names;
-                        sendMessage(names);
+                        int count1 = dbHandler.getCount1();
+                        String recNames ="";
+                        String [] dbNames ;
+                        for(int i=0;i<count1;i++){
+                            dbNames = dbHandler.deviceAt1(i+1);
+                            recNames+= dbNames[0]+"\n"+dbNames[1]+"\n"+dbNames[2]+"\n";
+                        }
+                        recNames="TID"+recNames;
+                        sendMessage(recNames);
 //                        showToast();
                     }
                 }
@@ -259,8 +324,8 @@ public class MainActivity extends AppCompatActivity {
     private void connectDevice(Intent data, boolean secure) {
         String address = data.getExtras().getString(
                 ScanDevices.DEVICE_ADDRESS);
-        names = data.getExtras().getString(
-                ScanDevices.DEVICE_NAMES);
+        addressFinal = data.getExtras().getString(
+                ScanDevices.DEVICE_2_ADDRESS);
         //create database to store devices
 //        dbHandler = new DeviceDBHandler(this);
 //        dbHandler.deletetable1();
@@ -276,6 +341,7 @@ public class MainActivity extends AppCompatActivity {
 //            devices = new Devices(a,b,c);
 //            dbHandler.addDevice1(devices);
 //        }
+
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
         chatService.connect(device, secure);
     }
