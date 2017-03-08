@@ -1,5 +1,9 @@
 package com.example.varunnagaraj.bluchat;
 
+/**
+ * Created by Varun Nagaraj on 27-02-2017.
+ */
+
 import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -23,9 +27,7 @@ import android.widget.Toast;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-/**
- * Created by Varun Nagaraj on 27-02-2017.
- */
+
 
 public class ScanDevices  extends Activity{
 

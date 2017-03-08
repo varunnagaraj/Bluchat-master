@@ -439,4 +439,5 @@ public class MainActivity extends AppCompatActivity {
         if (chatService != null)
             chatService.stop();
     }
+
 }
